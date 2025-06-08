@@ -1,0 +1,109 @@
+# Create a home folder for the experimental analyses 
+# In this created folder create an R-Studio project
+# Within this R-Studio project, launch the shared codes 
+
+# This script is intended to be worked through "manually": 
+# The standard analysis procedure file ("anproc.r") is constantly modified, and the basic call to "gdmm" is always the same.
+#
+# Hashtag (#) is to make comments for ourself in the code
+
+
+
+# 0.) Launch "aquap2" package in R 
+library(aquap2) # load aqap2 package so we can use its functions
+
+genFolderStr() # create the necessary folder structure ONCE!
+
+
+# 1.) Creat sample list based on metadata file 
+esl(form = "xls", rnd = FALSE, showFirstRows = TRUE, timeEstimate = TRUE) 
+
+exportSampleList() # create randomised measurement order
+
+# Use the sample list created above (or your own sample list) when recording the spectra
+# After data acquisition, move the rawdata file containing the spectra and a (possible) logger file containing e.g., temperature data into the "rawdata" folder
+# Rename the file containing the spectra to the experiment name as given in the metadata (see ?gfd for further information)
+
+
+# 2.) Import data after experiment and copying all files on place 
+# The complete dataset is saved in the "R-data" folder and can be read in simply by running:
+fullData <- gfd() # every detail of the spectral data is defined in the "metadata.R" file
+
+
+# 3.) Plot raw spectra from imported dataset 
+plot(fullData, colorBy = c("C_adultConc", "C_Repl")) 
+plot(fullData, colorBy = c("C_adultConc"), pg.where = "")
+
+
+# 4.) Remove unwanted data from our dataset 
+dataReduced <- ssc(fullData, C_smplName == "C030R2Had", include=FALSE) # use the "sub-select class" (ssc) function 
+plot_spectra(dataReduced, colorBy = "C_adultConc", pg.where = "")
+
+
+# 5.) Set analysis procedure file for the range of 950-1600 nm and plot using cube
+## set in "matedata/anproc.r": 
+### spl.wl <- c("900-to-1600")
+cu <- gdmm(dataReduced) # calculate PCA on the reduced dataset, then plot the results 
+plot_spectra(cu, colorBy = "C_adultConc", pg.where = "")
+plot_spectra(cu, colorBy = "C_adultConc", pg.fns = "_noOut") # "pg.fns" is to change the name of PDF not to overwrite previous ones 
+
+
+# 6.) Do PCA on the dateset 
+## set in "matedata/anproc.r": 
+### do.pca <- TRUE
+### pca.colorBy <- c("C_adultConc", "C_Repl", "C_conSNr", "C_SystemTemp")
+cu2 <- gdmm(dataReduced)  # calculate PCA
+plot(cu2)   # plot the results of PCA 
+
+
+# 7.) Analyses in different wavelength ranges and pretreatments 
+## set in "metadata/anproc.r": 
+### spl.wl <- c("950-to-1100", "1000-to-1400", "1300-to-1600")
+### do.pca <- FALSE
+cu3 <- gdmm(dataReduced)
+plot_spectra(cu3, colorBy = "C_adultConc", pg.fns = "_byRange") # plot spectra
+
+# 7a.) Set analysis procedure to do pre-treatment 
+## set in "metadata/anproc.r": 
+### dpt.pre <- "sgol@2-21-0"
+cu3 <- gdmm(dataReduced)  
+plot_spectra(cu3, colorBy = "C_adultConc", pg.fns = "_byRange_sgol") # plot the results of PCA calculated 
+
+
+# 7b.) Set analysis procedure to do pre-treatment  and calculate PCA
+## set in "metadata/anproc.r": 
+### dpt.post <- "msc"
+### do.pca <- TRUE
+cu4 <- gdmm(dataReduced)  
+plot_spectra(cu4, colorBy = "C_adultConc", pg.fns = "_byRange_sgol+msc") # plot the spectra 
+plot(cu4, pg.fns = "_byRange_sgol+msc") # plot the results of PCA calculated 
+
+
+# 8.) Look at on the structure of data and cube (cu) - not required for analysis 
+dataReduced  # or View(dataReduced)
+cu4 # or View(cu4)
+
+
+# 9.) Do regression on water temperature with PLSR 
+## set in "metadata/anproc.r":
+### do.pca <- FALSE
+### do.pls <- TRUE
+### pls.ncomp <- 2 # set the number of latent variables (LV) to be used in the modelling 
+### pls.regOn <- c("Y_adultConc")  # variable to be predicted 
+### pls.valid <- "C_SampleNr"  # default: 10-fold cross-validation but it can be changed to active class  
+### pls.colorBy <- "C_adultConc" # colouring of the points 
+cu6 <- gdmm(dataReduced) # calculate PLSR 
+plot(cu6, pg.fns = "_sgol+msc") # plot the results of PLSR 
+
+
+# 10.) Create classic aquagrams and subtracted spectra
+## set in "metadata/anproc.r":
+### do.pls <- FALSE
+### do.aqg <- TRUE
+### spl.wl <- "1300-to-1600"
+### aqg.vars <- "C_adultConc"
+### aqg.mod <- "classic"
+### aqg.spectra <- "all"
+### aqg.selWls <- c(1342.1908, 1364.4160, 1373.2525, 1383.1570, 1410.4663, 1425.6289, 1440.6978, 1452.4719, 1460.9985, 1475.8464, 1488.4986, 1511.5154) 
+cu7 <- gdmm(dataReduced)
+plot(cu7, pg.fns = "") # plot "classic" aquagram 
