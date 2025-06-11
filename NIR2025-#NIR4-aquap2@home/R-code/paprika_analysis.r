@@ -40,7 +40,7 @@ dataReduced <- ssc(fullData, C_smplName == "C030R2Had", include=FALSE) # use the
 plot_spectra(dataReduced, colorBy = "C_adultConc", pg.where = "")
 
 
-# 5.) Set analysis procedure file for the range of 950-1600 nm and plot using cube
+# 5.) Set analysis procedure file for the range of 900-1600 nm and plot using cube
 ## set in "matedata/anproc.r": 
 ### spl.wl <- c("900-to-1600")
 cu <- gdmm(dataReduced) # calculate PCA on the reduced dataset, then plot the results 
@@ -93,7 +93,11 @@ cu4 # or View(cu4)
 ### pls.valid <- "C_SampleNr"  # default: 10-fold cross-validation but it can be changed to active class  
 ### pls.colorBy <- "C_adultConc" # colouring of the points 
 cu6 <- gdmm(dataReduced) # calculate PLSR 
-plot(cu6, pg.fns = "_sgol+msc") # plot the results of PLSR 
+plot(cu6, pg.fns = "_sgol+msc_noOut") # plot the results of PLSR 
+
+predTest <- ssc(fullData, C_smplName == "C030R2Had", include=TRUE) # use the "sub-select class" (ssc) function 
+
+predList <- plot_pls_indepPred(predTest, cu6)
 
 
 # 10.) Create classic aquagrams and subtracted spectra
@@ -104,6 +108,7 @@ plot(cu6, pg.fns = "_sgol+msc") # plot the results of PLSR
 ### aqg.vars <- "C_adultConc"
 ### aqg.mod <- "classic"
 ### aqg.spectra <- "all"
+### aqg.minus <- "0"
 ### aqg.selWls <- c(1342.1908, 1364.4160, 1373.2525, 1383.1570, 1410.4663, 1425.6289, 1440.6978, 1452.4719, 1460.9985, 1475.8464, 1488.4986, 1511.5154) 
 cu7 <- gdmm(dataReduced)
 plot(cu7, pg.fns = "") # plot "classic" aquagram 

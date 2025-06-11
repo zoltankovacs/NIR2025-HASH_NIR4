@@ -3,7 +3,7 @@
     "path": "F:/Documents/R/GitHub/NIR2025-HASH_NIR4/NIR2025-#NIR4-aquap2@home/metadata/metadata.r",
     "project_path": "metadata/metadata.r",
     "type": "r_source",
-    "hash": "4234168053",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1749338272135.0,
@@ -11,7 +11,9 @@
     "relative_order": 2,
     "properties": {
         "source_window_id": "",
-        "Source": "Source"
+        "Source": "Source",
+        "cursorPosition": "20,61",
+        "scrollLine": "17"
     },
     "folds": "",
     "lastKnownWriteTime": 1749299231,
